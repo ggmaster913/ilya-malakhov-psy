@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  window.__build = 'figures-line-1';
+  window.__build = 'figures-traced-1';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -16,6 +16,76 @@
       pts.push(`${(cx + rr * Math.cos(t)).toFixed(1)} ${(cy + rr * Math.sin(t)).toFixed(1)}`);
     }
     return 'M' + pts.join(' L');
+  }
+
+  /* ------------------------------------------------------------------
+     Обводка силуэта: marching squares превращает пятно краски
+     в непрерывные линии, по которым потом равномерно раскладываются точки
+     ------------------------------------------------------------------ */
+  function traceContours(mask, sw, sh, minLength) {
+    const key = (x, y) => `${(x * 2) | 0},${(y * 2) | 0}`;
+    const segments = new Map();      // точка -> список соседних точек
+
+    const link = (a, b) => {
+      const ka = key(a[0], a[1]);
+      const kb = key(b[0], b[1]);
+      if (!segments.has(ka)) segments.set(ka, { p: a, next: [] });
+      if (!segments.has(kb)) segments.set(kb, { p: b, next: [] });
+      segments.get(ka).next.push(kb);
+      segments.get(kb).next.push(ka);
+    };
+
+    const at = (x, y) => (x < 0 || y < 0 || x >= sw || y >= sh ? 0 : mask[y * sw + x]);
+
+    for (let y = -1; y < sh; y++) {
+      for (let x = -1; x < sw; x++) {
+        const a = at(x, y);
+        const b = at(x + 1, y);
+        const c = at(x + 1, y + 1);
+        const d = at(x, y + 1);
+        const idx = a | (b << 1) | (c << 2) | (d << 3);
+        if (idx === 0 || idx === 15) continue;
+        const top = [x + 0.5, y];
+        const right = [x + 1, y + 0.5];
+        const bottom = [x + 0.5, y + 1];
+        const left = [x, y + 0.5];
+        switch (idx) {
+          case 1: case 14: link(left, top); break;
+          case 2: case 13: link(top, right); break;
+          case 3: case 12: link(left, right); break;
+          case 4: case 11: link(right, bottom); break;
+          case 6: case 9: link(top, bottom); break;
+          case 7: case 8: link(left, bottom); break;
+          case 5: link(left, top); link(right, bottom); break;
+          case 10: link(top, right); link(left, bottom); break;
+          default: break;
+        }
+      }
+    }
+
+    // связываем отрезки в ломаные
+    const used = new Set();
+    const lines = [];
+    segments.forEach((node, k) => {
+      if (used.has(k)) return;
+      const line = [];
+      let current = k;
+      let guard = 0;
+      while (current && !used.has(current) && guard++ < 20000) {
+        used.add(current);
+        const node2 = segments.get(current);
+        if (!node2) break;
+        line.push(node2.p);
+        current = node2.next.find((n) => !used.has(n));
+      }
+      if (line.length < 3) return;
+      let len = 0;
+      for (let i = 1; i < line.length; i++) {
+        len += Math.hypot(line[i][0] - line[i - 1][0], line[i][1] - line[i - 1][1]);
+      }
+      if (len >= minLength) lines.push({ pts: line, len });
+    });
+    return lines;
   }
 
   /* ------------------------------------------------------------------
@@ -524,19 +594,41 @@
         }
       }
 
+      // обводим пятно краски и раскладываем точки по линиям равномерно
+      const lines = traceContours(mask, sw, sh, Math.max(14, sh * 0.06));
+      const totalLen = lines.reduce((sum, l) => sum + l.len, 0);
+      if (!lines.length || totalLen < 40) return false;
+
       const candidates = [];
-      for (let y = 1; y < sh - 1; y++) {
-        for (let x = 1; x < sw - 1; x++) {
-          if (!inside(x, y)) continue;
-          const i = y * sw + x;
-          const m = mask[i];
-          const border = m !== mask[i - 1] || m !== mask[i + 1] || m !== mask[i - sw] || m !== mask[i + sw];
-          if (border) candidates.push([x + offX, y + offY, 1]);
-          // внутренность силуэта тоже набираем точками, но реже и светлее —
-          // так фигура читается целиком, а контур остаётся чётким
-          else if (m && Math.random() < 0.05) candidates.push([x + offX, y + offY, 0.35]);
+      const wantOnLines = Math.min(Math.max(2600, Math.round((w * h) / 26)), 7000);
+      const step = totalLen / wantOnLines;
+      lines.forEach((line) => {
+        let carry = 0;
+        for (let i = 1; i < line.pts.length; i++) {
+          const [x0, y0] = line.pts[i - 1];
+          const [x1, y1] = line.pts[i];
+          const segLen = Math.hypot(x1 - x0, y1 - y0);
+          if (segLen === 0) continue;
+          let t = carry;
+          while (t < segLen) {
+            const k = t / segLen;
+            const px2 = x0 + (x1 - x0) * k;
+            const py2 = y0 + (y1 - y0) * k;
+            if (inside(px2, py2)) candidates.push([px2 + offX, py2 + offY, 1]);
+            t += step;
+          }
+          carry = t - segLen;
+        }
+      });
+
+      // редкая «краска» внутри пятна, чтобы фигура не казалась пустой
+      for (let y = 1; y < sh - 1; y += 2) {
+        for (let x = 1; x < sw - 1; x += 2) {
+          if (!mask[y * sw + x] || !inside(x, y)) continue;
+          if (Math.random() < 0.05) candidates.push([x + offX, y + offY, 0.32]);
         }
       }
+
       if (candidates.length < 50) return false;
 
       // точки чаще садятся на плотные штрихи, а не на случайные пятна
@@ -556,7 +648,7 @@
         return candidates[lo];
       };
 
-      const want = Math.min(Math.max(5000, Math.round((w * h) / 14)), 12000);
+      const want = Math.min(candidates.length, 9000);
       dots = [];
       for (let i = 0; i < want; i++) {
         const c = pick();
