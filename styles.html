@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Варианты оформления — первый экран</title>
+  <meta name="robots" content="noindex">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&family=Manrope:wght@300;400;500;700&family=Unbounded:wght@300;400;500&family=IBM+Plex+Mono:wght@400&family=Golos+Text:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ————— страница-каталог ————— */
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #22211E; font-family: "Inter", system-ui, sans-serif; }
+
+    .page-intro {
+      padding: 3.5rem 1.5rem 2.5rem;
+      max-width: 52rem;
+      margin-inline: auto;
+      color: #E9E5DC;
+    }
+    .page-intro h1 { font-family: "Spectral", serif; font-weight: 300; font-size: clamp(1.8rem, 1.2rem + 2vw, 2.8rem); margin: 0 0 1rem; }
+    .page-intro p { margin: 0; color: #A8A298; line-height: 1.6; font-size: 0.95rem; }
+    .page-intro a { color: #E9E5DC; }
+
+    .variant { padding: 0 1.25rem 3.5rem; }
+    .variant__label {
+      max-width: 90rem;
+      margin: 0 auto 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      align-items: baseline;
+      color: #E9E5DC;
+      font-size: 0.85rem;
+      padding: 1.5rem 0.25rem 0;
+    }
+    .variant__num { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; color: #8C867B; }
+    .variant__name { font-weight: 600; letter-spacing: 0.01em; }
+    .variant__meta { color: #A8A298; font-size: 0.8rem; }
+
+    .frame {
+      max-width: 90rem;
+      margin-inline: auto;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* ————— общий каркас первого экрана ————— */
+    .hero {
+      --pad: clamp(1.5rem, 4vw, 4rem);
+      position: relative;
+      min-height: 30rem;
+      padding: clamp(2rem, 5vw, 4.5rem) var(--pad);
+      display: grid;
+      gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: center;
+    }
+    @media (min-width: 900px) {
+      .hero { grid-template-columns: minmax(0, 1fr) auto; min-height: 34rem; }
+    }
+    .hero__top { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; margin: 0 0 1.5rem; }
+    .hero__name { margin: 0; font-weight: 300; line-height: 1; }
+    .hero__lead { margin: 1.75rem 0 0; max-width: 26rem; line-height: 1.65; font-size: 0.98rem; }
+    .hero__cta { margin-top: 2rem; display: inline-flex; align-items: center; gap: 0.75rem; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; }
+    .hero__photo { width: min(70vw, 19rem); aspect-ratio: 1; }
+    .hero__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    @media (min-width: 900px) { .hero__photo { justify-self: end; } }
+
+    /* ————— 01. Тёплая бумага (текущий) ————— */
+    .v1 { background: #F6F2EA; color: #23211D; }
+    .v1 .hero__top { color: #9A9288; }
+    .v1 .hero__name { font-family: "Spectral", serif; font-size: clamp(2.6rem, 1rem + 6vw, 5rem); letter-spacing: -0.03em; }
+    .v1 .hero__name span { display: block; }
+    .v1 .hero__name span:last-child { padding-left: 1.2em; font-style: italic; color: #4E5B46; }
+    .v1 .hero__lead { color: #6A645B; }
+    .v1 .hero__cta { color: #23211D; border-bottom: 1px solid currentColor; padding-bottom: 0.35rem; }
+
+    /* ————— 02. Белый лист ————— */
+    .v2 { background: #FFFFFF; color: #101112; }
+    .v2 .hero__top { color: #8A8F94; }
+    .v2 .hero__name { font-family: "Inter", sans-serif; font-weight: 600; font-size: clamp(2.4rem, 1rem + 5.4vw, 4.4rem); letter-spacing: -0.045em; }
+    .v2 .hero__lead { color: #5C6166; }
+    .v2 .hero__cta { color: #101112; background: #101112; color: #fff; padding: 0.9rem 1.5rem; }
+    .v2 .hero__photo { border-radius: 2px; }
+
+    /* ————— 03. Графит и бронза ————— */
+    .v3 { background: #1C1B19; color: #EFEAE1; }
+    .v3 .hero__top { color: #B99A63; }
+    .v3 .hero__name { font-family: "Spectral", serif; font-size: clamp(2.6rem, 1rem + 6vw, 5rem); letter-spacing: -0.03em; }
+    .v3 .hero__name span { display: block; }
+    .v3 .hero__name span:last-child { font-style: italic; color: #B99A63; }
+    .v3 .hero__lead { color: #A69F94; }
+    .v3 .hero__cta { color: #EFEAE1; border: 1px solid #55504A; padding: 0.9rem 1.5rem; }
+    .v3 .hero__photo img { filter: grayscale(1) contrast(1.1) brightness(0.95); }
+
+    /* ————— 04. Хвойный ————— */
+    .v4 { background: #21302A; color: #EDE7DB; }
+    .v4 .hero__top { color: #9DB39F; }
+    .v4 .hero__name { font-family: "Cormorant Garamond", serif; font-weight: 300; font-size: clamp(3rem, 1rem + 7vw, 6rem); letter-spacing: -0.02em; }
+    .v4 .hero__name span { display: block; }
+    .v4 .hero__name span:last-child { font-style: italic; color: #D8C79B; }
+    .v4 .hero__lead { color: #B6BFB2; }
+    .v4 .hero__cta { color: #21302A; background: #D8C79B; padding: 0.9rem 1.5rem; }
+
+    /* ————— 05. Тушь и бумага ————— */
+    .v5 { background: #FAFAF7; color: #111111; text-align: center; }
+    .v5.hero { grid-template-columns: 1fr; justify-items: center; }
+    .v5 .hero__top { color: #8A8A85; }
+    .v5 .hero__name { font-family: "Playfair Display", serif; font-weight: 400; font-size: clamp(2.6rem, 1rem + 6.5vw, 5.5rem); letter-spacing: -0.02em; }
+    .v5 .hero__lead { color: #55554F; margin-inline: auto; }
+    .v5 .hero__cta { color: #111; border-bottom: 1px solid currentColor; padding-bottom: 0.35rem; }
+    .v5 .hero__photo { width: min(70vw, 15rem); margin-top: 2rem; }
+    .v5 .hero__photo img { filter: grayscale(1) contrast(1.08); }
+
+    /* ————— 06. Песок и терракота ————— */
+    .v6 { background: #EFE3D6; color: #2B211A; }
+    .v6 .hero__top { color: #A8674A; }
+    .v6 .hero__name { font-family: "Manrope", sans-serif; font-weight: 700; font-size: clamp(2.4rem, 1rem + 5.4vw, 4.6rem); letter-spacing: -0.045em; line-height: 0.95; }
+    .v6 .hero__name span { display: block; }
+    .v6 .hero__name span:last-child { color: #A8674A; }
+    .v6 .hero__lead { color: #6B5B4E; }
+    .v6 .hero__cta { background: #2B211A; color: #EFE3D6; padding: 0.9rem 1.5rem; }
+    .v6 .hero__photo img { filter: sepia(0.18) saturate(0.95); }
+
+    /* ————— 07. Клиника ————— */
+    .v7 { background: #F2F5F6; color: #16242E; }
+    .v7 .hero__top { color: #5C7A8C; }
+    .v7 .hero__name { font-family: "Inter", sans-serif; font-weight: 500; font-size: clamp(2.3rem, 1rem + 5vw, 4rem); letter-spacing: -0.035em; }
+    .v7 .hero__lead { color: #4A616E; }
+    .v7 .hero__cta { background: #1E4767; color: #fff; padding: 0.9rem 1.5rem; border-radius: 2px; }
+    .v7 .hero__photo { border: 1px solid #D2DCE1; padding: 0.5rem; background: #fff; }
+
+    /* ————— 08. Швейцарская сетка ————— */
+    .v8 { background: #EDEDEA; color: #1A1A18; align-items: start; }
+    .v8 .hero__top { font-family: "IBM Plex Mono", monospace; letter-spacing: 0.1em; color: #6E6E68; }
+    .v8 .hero__name { font-family: "Inter", sans-serif; font-weight: 400; font-size: clamp(1.6rem, 1rem + 2.2vw, 2.4rem); letter-spacing: -0.02em; }
+    .v8 .hero__lead { font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; color: #55554F; max-width: 22rem; }
+    .v8 .hero__cta { font-family: "IBM Plex Mono", monospace; color: #1A1A18; border-bottom: 1px solid currentColor; padding-bottom: 0.3rem; }
+    .v8 .hero__photo { width: min(80vw, 26rem); aspect-ratio: 1; }
+    .v8 .hero__photo img { filter: grayscale(1) contrast(1.05); }
+
+    /* ————— 09. Молочный курсив ————— */
+    .v9 { background: #F7F4EF; color: #2A2622; }
+    .v9 .hero__top { color: #A19A90; }
+    .v9 .hero__name { font-family: "Cormorant Garamond", serif; font-weight: 300; font-style: italic; font-size: clamp(3rem, 1rem + 7.5vw, 6.5rem); letter-spacing: -0.02em; }
+    .v9 .hero__name span { display: block; }
+    .v9 .hero__name span:last-child { padding-left: 2em; }
+    .v9 .hero__lead { color: #6B645C; }
+    .v9 .hero__cta { color: #2A2622; border-bottom: 1px solid currentColor; padding-bottom: 0.35rem; }
+    .v9 .hero__photo { width: min(70vw, 17rem); }
+
+    /* ————— 10. Ночь и латунь ————— */
+    .v10 { background: #121210; color: #F1EDE4; }
+    .v10 .hero__top { font-family: "Unbounded", sans-serif; font-weight: 300; letter-spacing: 0.18em; color: #C6A86B; font-size: 0.66rem; }
+    .v10 .hero__name { font-family: "Unbounded", sans-serif; font-weight: 300; font-size: clamp(1.9rem, 1rem + 3.6vw, 3.2rem); letter-spacing: -0.02em; line-height: 1.1; }
+    .v10 .hero__name span { display: block; }
+    .v10 .hero__name span:last-child { color: #C6A86B; }
+    .v10 .hero__lead { color: #9F9A90; }
+    .v10 .hero__cta { color: #121210; background: #C6A86B; padding: 0.9rem 1.5rem; }
+    .v10 .hero__photo img { filter: grayscale(0.4) brightness(0.92) sepia(0.15); }
+
+    /* ————— 11. Мятный минимализм ————— */
+    .v11 { background: #E8EFEA; color: #17251E; }
+    .v11 .hero__top { color: #5E7F6E; }
+    .v11 .hero__name { font-family: "Manrope", sans-serif; font-weight: 300; font-size: clamp(2.5rem, 1rem + 5.6vw, 4.8rem); letter-spacing: -0.04em; }
+    .v11 .hero__name span { display: block; }
+    .v11 .hero__name span:last-child { font-weight: 700; }
+    .v11 .hero__lead { color: #4B6255; }
+    .v11 .hero__cta { color: #17251E; border: 1px solid #17251E; padding: 0.85rem 1.4rem; }
+
+    /* ————— 12. Чёрно-белый контраст ————— */
+    .v12 { background: #111; color: #FAFAFA; }
+    .v12 .hero__top { color: #8E8E8E; }
+    .v12 .hero__name { font-family: "Inter", sans-serif; font-weight: 600; font-size: clamp(2.6rem, 1rem + 6.4vw, 5.4rem); letter-spacing: -0.05em; line-height: 0.92; }
+    .v12 .hero__name span { display: block; }
+    .v12 .hero__name span:last-child { -webkit-text-stroke: 1px #FAFAFA; color: transparent; }
+    .v12 .hero__lead { color: #9C9C9C; }
+    .v12 .hero__cta { background: #FAFAFA; color: #111; padding: 0.9rem 1.5rem; }
+    .v12 .hero__photo img { filter: grayscale(1) contrast(1.15); }
+  </style>
+</head>
+<body>
+
+  <div class="page-intro">
+    <h1>Варианты первого экрана</h1>
+    <p>
+      Двенадцать вариантов оформления: цвет, шрифты, расположение фото. Тексты и фотография везде одинаковые,
+      меняется только стиль. Скажи номера, которые понравились, — соберу из них главную страницу целиком.
+      Текущий сайт остался как есть: <a href="index.html">открыть его</a>.
+    </p>
+  </div>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">01</span><span class="variant__name">Тёплая бумага</span><span class="variant__meta">сейчас на сайте · Spectral + Golos · оливковый акцент</span></div>
+    <div class="frame">
+      <div class="hero v1">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name"><span>Илья</span><span>Малахов</span></h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">02</span><span class="variant__name">Белый лист</span><span class="variant__meta">чистый белый · Inter · чёрная кнопка</span></div>
+    <div class="frame">
+      <div class="hero v2">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name">Илья Малахов</h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">03</span><span class="variant__name">Графит и бронза</span><span class="variant__meta">тёмный · Spectral · фото ч/б</span></div>
+    <div class="frame">
+      <div class="hero v3">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name"><span>Илья</span><span>Малахов</span></h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">04</span><span class="variant__name">Хвойный</span><span class="variant__meta">глубокий зелёный · Cormorant · песочный акцент</span></div>
+    <div class="frame">
+      <div class="hero v4">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name"><span>Илья</span><span>Малахов</span></h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">05</span><span class="variant__name">Тушь и бумага</span><span class="variant__meta">по центру · Playfair · фото ч/б, небольшое</span></div>
+    <div class="frame">
+      <div class="hero v5">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name">Илья Малахов</h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">06</span><span class="variant__name">Песок и терракота</span><span class="variant__meta">тёплый беж · Manrope · плотный заголовок</span></div>
+    <div class="frame">
+      <div class="hero v6">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name"><span>Илья</span><span>Малахов</span></h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">07</span><span class="variant__name">Клиника</span><span class="variant__meta">холодный светлый · Inter · синий акцент</span></div>
+    <div class="frame">
+      <div class="hero v7">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name">Илья Малахов</h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">08</span><span class="variant__name">Швейцарская сетка</span><span class="variant__meta">мелкое имя · моноширинный · крупное фото</span></div>
+    <div class="frame">
+      <div class="hero v8">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name">Илья Малахов</h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">09</span><span class="variant__name">Молочный курсив</span><span class="variant__meta">очень крупный курсив · Cormorant · много воздуха</span></div>
+    <div class="frame">
+      <div class="hero v9">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name"><span>Илья</span><span>Малахов</span></h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">10</span><span class="variant__name">Ночь и латунь</span><span class="variant__meta">почти чёрный · Unbounded · латунный акцент</span></div>
+    <div class="frame">
+      <div class="hero v10">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name"><span>Илья</span><span>Малахов</span></h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">11</span><span class="variant__name">Мятный минимализм</span><span class="variant__meta">светло-зелёный · Manrope · тонкий и плотный вместе</span></div>
+    <div class="frame">
+      <div class="hero v11">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name"><span>Илья</span><span>Малахов</span></h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant">
+    <div class="variant__label"><span class="variant__num">12</span><span class="variant__name">Чёрно-белый контраст</span><span class="variant__meta">чёрный · Inter · фамилия контуром</span></div>
+    <div class="frame">
+      <div class="hero v12">
+        <div>
+          <p class="hero__top">Психолог · КПТ · онлайн</p>
+          <h2 class="hero__name"><span>Илья</span><span>Малахов</span></h2>
+          <p class="hero__lead">Помогаю услышать себя, найти собственные опоры и двигаться к жизни, которая соответствует вашим ценностям.</p>
+          <p class="hero__cta">Записаться на встречу</p>
+        </div>
+        <figure class="hero__photo"><img src="assets/img/portrait-square.webp" alt="Илья Малахов" width="1100" height="1100" loading="lazy"></figure>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
