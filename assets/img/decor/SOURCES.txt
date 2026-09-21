@@ -1,16 +1,12 @@
-Источники декоративных фигур (обе гравюры — public domain, Wikimedia Commons).
+Фотографии античных ваз: The Metropolitan Museum of Art, Open Access (CC0,
+общественное достояние). Фон студийной съёмки убран, предмет лежит прямо
+на бумажном фоне страницы.
 
-1) sisyphus — Сизиф с камнем.
-   File:Sziszüphosz.png — прорисовка чернофигурной амфоры (E. Gerhard,
-   «Auserlesene griechische Vasenbilder», 1843).
-   https://commons.wikimedia.org/wiki/File:Szisz%C3%BCphosz.png
+1) amphora-runners — Terracotta Panathenaic prize amphora, ок. 530 г. до н. э.
+   https://www.metmuseum.org/art/collection/search/248902
 
-2) herakles — Геракл в львиной шкуре с луком.
-3) athena — Афина в шлеме со щитом (трискелион).
-   File:Gerhard 1858 Heracles Amphora.jpg — прорисовка чернофигурной амфоры
-   (E. Gerhard, 1858).
-   https://commons.wikimedia.org/wiki/File:Gerhard_1858_Heracles_Amphora.jpg
+2) amphora-chariot — Terracotta neck-amphora with lid, ок. 540 г. до н. э.
+   https://www.metmuseum.org/art/collection/search/250551
 
-Как сделаны файлы: силуэт выделяется по яркости (фигура отделяется от фона
-и от соседних фигур), его границы обводятся и сохраняются как контуры SVG.
-Поэтому *.svg чёткие на любом экране и весят немного.
+3) lekythos — Terracotta lekythos (oil flask), ок. 420 г. до н. э.
+   https://www.metmuseum.org/art/collection/search/253351
