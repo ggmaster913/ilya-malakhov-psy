@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  window.__build = 'figures-full-1';
+  window.__build = 'figures-line-1';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -534,7 +534,7 @@
           if (border) candidates.push([x + offX, y + offY, 1]);
           // внутренность силуэта тоже набираем точками, но реже и светлее —
           // так фигура читается целиком, а контур остаётся чётким
-          else if (m && Math.random() < 0.4) candidates.push([x + offX, y + offY, 0.5]);
+          else if (m && Math.random() < 0.05) candidates.push([x + offX, y + offY, 0.35]);
         }
       }
       if (candidates.length < 50) return false;
@@ -556,7 +556,7 @@
         return candidates[lo];
       };
 
-      const want = Math.min(Math.max(4200, Math.round((w * h) / 11)), 11000);
+      const want = Math.min(Math.max(5000, Math.round((w * h) / 14)), 12000);
       dots = [];
       for (let i = 0; i < want; i++) {
         const c = pick();
@@ -605,8 +605,8 @@
         p.y += p.vy;
         if (Math.abs(p.vx) + Math.abs(p.vy) > 0.02) moving = true;
 
-        ctx.fillStyle = `rgba(35, 33, 29, ${(0.18 + p.d * 0.5).toFixed(3)})`;
-        ctx.fillRect(p.x, p.y, 1.2, 1.2);
+        ctx.fillStyle = `rgba(35, 33, 29, ${(0.2 + p.d * 0.55).toFixed(3)})`;
+        ctx.fillRect(p.x, p.y, 1.3, 1.3);
       }
 
       return moving;
