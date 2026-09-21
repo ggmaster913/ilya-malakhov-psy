@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Golos+Text:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <script>document.documentElement.classList.add('js')</script>
+  <script defer src="assets/js/figures-data.js"></script>
   <script defer src="assets/js/main.js"></script>
 </head>
 <body>
@@ -86,9 +87,9 @@
     <!-- 2. ABOUT -->
     <section class="section about" id="about" aria-labelledby="about-title">
       <div class="container about__grid">
-        <!-- Декор: прорисовка античной вазы, Wikimedia Commons, public domain -->
-        <figure class="figure reveal" data-figure data-ink="solid"
-                data-keep="0.12,0 0.99,0 0.99,0.40 0.60,0.50 0.52,1 0.12,1">
+        <!-- Декор: точки собираются в силуэт чернофигурной росписи.
+             Источники гравюр — assets/img/decor/SOURCES.txt (public domain) -->
+        <figure class="figure reveal" data-figure="sisyphus" style="--fig-ar: 307 / 440">
           <img src="assets/img/decor/sisyphus.webp" alt="" decoding="async">
           <figcaption class="figure__hint">наведите курсор</figcaption>
         </figure>
@@ -142,10 +143,21 @@
                 </button>
               </dd>
             </div>
-            <!-- УТОЧНИТЬ: организация и год курса -->
+            <!-- УТОЧНИТЬ: где и когда пройден курс КПТ -->
             <div>
               <dt>Курсы</dt>
-              <dd>Когнитивно-поведенческая терапия<span class="facts__note">(организация, год)</span></dd>
+              <dd>Когнитивно-поведенческая терапия</dd>
+            </div>
+            <div>
+              <dt>Сообщество</dt>
+              <dd>
+                <button class="facts__doc" type="button" data-doc="assets/img/docs/akpp.webp"
+                        data-doc-title="Свидетельство о членстве в Ассоциации когнитивно-поведенческой психотерапии, 2026">
+                  Ассоциация когнитивно-поведенческой психотерапии (АКПП)
+                  <span class="facts__note">Член ассоциации, с марта 2026</span>
+                  <span class="facts__open">Смотреть свидетельство</span>
+                </button>
+              </dd>
             </div>
           </dl>
 
@@ -222,12 +234,12 @@
           <p class="kicker reveal">03 — Запросы</p>
           <h2 class="section-title reveal" id="services-title" data-words>С&nbsp;чем <em>можно прийти</em></h2>
           <p class="services__note reveal">Индивидуальные сессии онлайн, 50&nbsp;минут.<br>Стоимость — 5&nbsp;000&nbsp;₽</p>
-          <!-- Декор: прорисовка античной вазы, Wikimedia Commons, public domain -->
-          <figure class="figure reveal" data-figure data-ink="solid"
-                  data-keep="0.02,0.02 0.98,0.02 0.98,0.98 0.02,0.98">
-            <img src="assets/img/decor/hades.webp" alt="" decoding="async">
-            <figcaption class="figure__hint">наведите курсор</figcaption>
-          </figure>
+          <!-- Декор: точки собираются в силуэт чернофигурной росписи.
+             Источники гравюр — assets/img/decor/SOURCES.txt (public domain) -->
+          <figure class="figure reveal" data-figure="herakles" style="--fig-ar: 422 / 837">
+          <img src="assets/img/decor/herakles.webp" alt="" decoding="async">
+          <figcaption class="figure__hint">наведите курсор</figcaption>
+        </figure>
         </header>
 
         <ul class="services__list">
@@ -345,10 +357,10 @@
             <li><a class="messenger" href="https://www.b17.ru/malakhov_ilya/" target="_blank" rel="noopener"><span>Профиль на&nbsp;b17</span><span class="messenger__handle">b17.ru/malakhov_ilya</span></a></li>
           </ul>
 
-          <!-- Декор: прорисовка античной вазы, Wikimedia Commons, public domain -->
-        <figure class="figure reveal" data-figure data-ink="solid"
-                data-keep="0.02,0.02 0.98,0.02 0.98,0.98 0.02,0.98">
-          <img src="assets/img/decor/persephone.webp" alt="" decoding="async">
+          <!-- Декор: точки собираются в силуэт чернофигурной росписи.
+             Источники гравюр — assets/img/decor/SOURCES.txt (public domain) -->
+        <figure class="figure reveal" data-figure="athena" style="--fig-ar: 357 / 943">
+          <img src="assets/img/decor/athena.webp" alt="" decoding="async">
           <figcaption class="figure__hint">наведите курсор</figcaption>
         </figure>
         </div>
@@ -401,7 +413,7 @@
     <div class="container site-footer__inner">
       <p class="site-footer__name">Малахов Илья Вадимович</p>
       <p class="site-footer__meta">
-        Психолог, КПТ · © <span data-year>2026</span><br>
+        Психолог, КПТ · АКПП · © <span data-year>2026</span><br>
         Сайт не является медицинской услугой. В&nbsp;экстренной ситуации звоните 112.
       </p>
       <a class="link-quiet" href="#top">Наверх</a>

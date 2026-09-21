@@ -1,0 +1,16 @@
+Источники декоративных фигур (обе гравюры — public domain, Wikimedia Commons).
+
+1) sisyphus — Сизиф с камнем.
+   File:Sziszüphosz.png — прорисовка чернофигурной амфоры (E. Gerhard,
+   «Auserlesene griechische Vasenbilder», 1843).
+   https://commons.wikimedia.org/wiki/File:Szisz%C3%BCphosz.png
+
+2) herakles — Геракл в львиной шкуре с луком.
+3) athena — Афина в шлеме со щитом (трискелион).
+   File:Gerhard 1858 Heracles Amphora.jpg — прорисовка чернофигурной амфоры
+   (E. Gerhard, 1858).
+   https://commons.wikimedia.org/wiki/File:Gerhard_1858_Heracles_Amphora.jpg
+
+Как получены точки: силуэт выделяется по яркости, из него берутся контур
+и равномерная «заливка»; координаты упакованы в assets/js/figures-data.js.
+Картинки *.webp — запасной вариант (если JS выключен): тот же рисунок точками.

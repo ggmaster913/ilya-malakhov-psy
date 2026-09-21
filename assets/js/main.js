@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  window.__build = 'figures-traced-1';
+  window.__build = 'figures-solid-1';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -16,76 +16,6 @@
       pts.push(`${(cx + rr * Math.cos(t)).toFixed(1)} ${(cy + rr * Math.sin(t)).toFixed(1)}`);
     }
     return 'M' + pts.join(' L');
-  }
-
-  /* ------------------------------------------------------------------
-     Обводка силуэта: marching squares превращает пятно краски
-     в непрерывные линии, по которым потом равномерно раскладываются точки
-     ------------------------------------------------------------------ */
-  function traceContours(mask, sw, sh, minLength) {
-    const key = (x, y) => `${(x * 2) | 0},${(y * 2) | 0}`;
-    const segments = new Map();      // точка -> список соседних точек
-
-    const link = (a, b) => {
-      const ka = key(a[0], a[1]);
-      const kb = key(b[0], b[1]);
-      if (!segments.has(ka)) segments.set(ka, { p: a, next: [] });
-      if (!segments.has(kb)) segments.set(kb, { p: b, next: [] });
-      segments.get(ka).next.push(kb);
-      segments.get(kb).next.push(ka);
-    };
-
-    const at = (x, y) => (x < 0 || y < 0 || x >= sw || y >= sh ? 0 : mask[y * sw + x]);
-
-    for (let y = -1; y < sh; y++) {
-      for (let x = -1; x < sw; x++) {
-        const a = at(x, y);
-        const b = at(x + 1, y);
-        const c = at(x + 1, y + 1);
-        const d = at(x, y + 1);
-        const idx = a | (b << 1) | (c << 2) | (d << 3);
-        if (idx === 0 || idx === 15) continue;
-        const top = [x + 0.5, y];
-        const right = [x + 1, y + 0.5];
-        const bottom = [x + 0.5, y + 1];
-        const left = [x, y + 0.5];
-        switch (idx) {
-          case 1: case 14: link(left, top); break;
-          case 2: case 13: link(top, right); break;
-          case 3: case 12: link(left, right); break;
-          case 4: case 11: link(right, bottom); break;
-          case 6: case 9: link(top, bottom); break;
-          case 7: case 8: link(left, bottom); break;
-          case 5: link(left, top); link(right, bottom); break;
-          case 10: link(top, right); link(left, bottom); break;
-          default: break;
-        }
-      }
-    }
-
-    // связываем отрезки в ломаные
-    const used = new Set();
-    const lines = [];
-    segments.forEach((node, k) => {
-      if (used.has(k)) return;
-      const line = [];
-      let current = k;
-      let guard = 0;
-      while (current && !used.has(current) && guard++ < 20000) {
-        used.add(current);
-        const node2 = segments.get(current);
-        if (!node2) break;
-        line.push(node2.p);
-        current = node2.next.find((n) => !used.has(n));
-      }
-      if (line.length < 3) return;
-      let len = 0;
-      for (let i = 1; i < line.length; i++) {
-        len += Math.hypot(line[i][0] - line[i - 1][0], line[i][1] - line[i - 1][1]);
-      }
-      if (len >= minLength) lines.push({ pts: line, len });
-    });
-    return lines;
   }
 
   /* ------------------------------------------------------------------
@@ -490,16 +420,39 @@
   }
 
   /* ------------------------------------------------------------------
-     Фигуры из частиц: рисунок собирается из точек и расходится под курсором
+     Фигуры из частиц: силуэт чернофигурной росписи собирается из точек
+     и расходится под курсором.
 
-     Пиксели рисунка читаются один раз. Если браузер это запрещает
-     (страница открыта как файл), остаётся обычная картинка.
+     Координаты точек посчитаны заранее (assets/js/figures-data.js):
+     контур и «заливка» силуэта. Так рисунок читается сразу и одинаково
+     во всех браузерах — ничего не зависит от чтения пикселей картинки.
      ------------------------------------------------------------------ */
+  function unpackPoints(b64) {
+    const bin = atob(b64);
+    const n = (bin.length / 3) | 0;
+    const out = new Float32Array(n * 2);
+    for (let i = 0; i < n; i++) {
+      const a = bin.charCodeAt(i * 3);
+      const b = bin.charCodeAt(i * 3 + 1);
+      const c = bin.charCodeAt(i * 3 + 2);
+      out[i * 2] = ((a << 4) | (b >> 4)) / 4095;
+      out[i * 2 + 1] = (((b & 15) << 8) | c) / 4095;
+    }
+    return out;
+  }
+
   function buildFigure(el) {
+    const data = (window.FIGURES || {})[el.dataset.figure];
+    if (!data) return;
+
     const img = el.querySelector('img');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    if (!ctx || !img) return;
+    if (!ctx) return;
+
+    const edge = unpackPoints(data.e);
+    const inner = unpackPoints(data.i);
+    const nEdge = edge.length / 2;
 
     let dots = [];
     let w = 0;
@@ -508,9 +461,10 @@
     let visible = false;
     let raf = null;
     let started = false;
+    let painted = false;
     const mouse = { x: -999, y: -999, on: 0 };
 
-    function sample() {
+    function layout(first) {
       const box = el.getBoundingClientRect();
       if (box.width < 10) return false;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -521,150 +475,38 @@
       canvas.style.width = w + 'px';
       canvas.style.height = h + 'px';
 
-      const scale = Math.min(w / img.naturalWidth, h / img.naturalHeight);
-      const sw = Math.max(1, Math.round(img.naturalWidth * scale * 0.96));
-      const sh = Math.max(1, Math.round(img.naturalHeight * scale * 0.96));
-      const off = document.createElement('canvas');
-      off.width = sw;
-      off.height = sh;
-      const octx = off.getContext('2d', { willReadFrequently: true });
-      octx.drawImage(img, 0, 0, sw, sh);
+      // вписываем силуэт целиком, с небольшим полем
+      const scale = Math.min(w / data.w, h / data.h) * 0.98;
+      const fw = data.w * scale;
+      const fh = data.h * scale;
+      const ox = (w - fw) / 2;
+      const oy = (h - fh) / 2;
 
-      let px;
-      try {
-        px = octx.getImageData(0, 0, sw, sh).data;
-      } catch (e) {
-        return false;                        // file:// — пиксели читать нельзя
-      }
-
-      const lum = new Float32Array(sw * sh);
-      for (let i = 0, n = 0; n < lum.length; i += 4, n++) {
-        lum[n] = (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114) / 255;
-      }
-
-      // локальная яркость: у рисунков пером берём штрих, а не фон
-      const R = Math.max(2, Math.round(sh / 26));
-      const integ = new Float64Array((sw + 1) * (sh + 1));
-      for (let y = 0; y < sh; y++) {
-        let row = 0;
-        for (let x = 0; x < sw; x++) {
-          row += lum[y * sw + x];
-          integ[(y + 1) * (sw + 1) + x + 1] = integ[y * (sw + 1) + x + 1] + row;
+      const total = nEdge + inner.length / 2;
+      if (first) dots = new Array(total);
+      for (let i = 0; i < total; i++) {
+        const src = i < nEdge ? edge : inner;
+        const k = i < nEdge ? i : i - nEdge;
+        const hx = ox + src[k * 2] * fw;
+        const hy = oy + src[k * 2 + 1] * fh;
+        if (first) {
+          dots[i] = {
+            hx, hy, edge: i < nEdge,
+            x: w / 2 + (Math.random() - 0.5) * w * 1.7,
+            y: h / 2 + (Math.random() - 0.5) * h * 1.7,
+            vx: 0, vy: 0,
+            k: 0.014 + Math.random() * 0.022,
+          };
+        } else {
+          const p = dots[i];
+          p.hx = hx; p.hy = hy;
+          if (painted) { p.x = hx; p.y = hy; p.vx = 0; p.vy = 0; }
         }
-      }
-      const meanAt = (x, y) => {
-        const x0 = Math.max(0, x - R), x1 = Math.min(sw, x + R + 1);
-        const y0 = Math.max(0, y - R), y1 = Math.min(sh, y + R + 1);
-        const sum = integ[y1 * (sw + 1) + x1] - integ[y0 * (sw + 1) + x1] - integ[y1 * (sw + 1) + x0] + integ[y0 * (sw + 1) + x0];
-        return sum / ((x1 - x0) * (y1 - y0));
-      };
-
-      // solid — сплошной силуэт, line — то, что темнее своей округи
-      const mode = el.dataset.ink || 'line';
-      // область, которую оставляем: многоугольник в долях от картинки
-      const keep = (el.dataset.keep || '').trim().split(/\s+/).filter(Boolean)
-        .map((pair) => pair.split(',').map(Number));
-      const inside = (x, y) => {
-        if (keep.length < 3) return true;
-        const nx = x / sw;
-        const ny = y / sh;
-        let hit = false;
-        for (let i = 0, j = keep.length - 1; i < keep.length; j = i++) {
-          const [xi, yi] = keep[i];
-          const [xj, yj] = keep[j];
-          if ((yi > ny) !== (yj > ny) && nx < ((xj - xi) * (ny - yi)) / (yj - yi) + xi) hit = !hit;
-        }
-        return hit;
-      };
-
-      const offX = (w - sw) / 2;
-      const offY = (h - sh) / 2;
-
-      // делим картинку на краску и фон по сглаженной яркости,
-      // затем берём только границу пятна: контур фигуры и линии росписи.
-      // Сплошная заливка на маленьком размере читалась бы как клякса.
-      const blurR = Math.max(1, Math.round(sh / 120));
-      const mask = new Uint8Array(sw * sh);
-      for (let y = 0; y < sh; y++) {
-        for (let x = 0; x < sw; x++) {
-          const x0 = Math.max(0, x - blurR), x1 = Math.min(sw, x + blurR + 1);
-          const y0 = Math.max(0, y - blurR), y1 = Math.min(sh, y + blurR + 1);
-          const sum = integ[y1 * (sw + 1) + x1] - integ[y0 * (sw + 1) + x1] - integ[y1 * (sw + 1) + x0] + integ[y0 * (sw + 1) + x0];
-          mask[y * sw + x] = sum / ((x1 - x0) * (y1 - y0)) < 0.45 ? 1 : 0;
-        }
-      }
-
-      // обводим пятно краски и раскладываем точки по линиям равномерно
-      const lines = traceContours(mask, sw, sh, Math.max(14, sh * 0.06));
-      const totalLen = lines.reduce((sum, l) => sum + l.len, 0);
-      if (!lines.length || totalLen < 40) return false;
-
-      const candidates = [];
-      const wantOnLines = Math.min(Math.max(2600, Math.round((w * h) / 26)), 7000);
-      const step = totalLen / wantOnLines;
-      lines.forEach((line) => {
-        let carry = 0;
-        for (let i = 1; i < line.pts.length; i++) {
-          const [x0, y0] = line.pts[i - 1];
-          const [x1, y1] = line.pts[i];
-          const segLen = Math.hypot(x1 - x0, y1 - y0);
-          if (segLen === 0) continue;
-          let t = carry;
-          while (t < segLen) {
-            const k = t / segLen;
-            const px2 = x0 + (x1 - x0) * k;
-            const py2 = y0 + (y1 - y0) * k;
-            if (inside(px2, py2)) candidates.push([px2 + offX, py2 + offY, 1]);
-            t += step;
-          }
-          carry = t - segLen;
-        }
-      });
-
-      // редкая «краска» внутри пятна, чтобы фигура не казалась пустой
-      for (let y = 1; y < sh - 1; y += 2) {
-        for (let x = 1; x < sw - 1; x += 2) {
-          if (!mask[y * sw + x] || !inside(x, y)) continue;
-          if (Math.random() < 0.05) candidates.push([x + offX, y + offY, 0.32]);
-        }
-      }
-
-      if (candidates.length < 50) return false;
-
-      // точки чаще садятся на плотные штрихи, а не на случайные пятна
-      const cdf = new Float64Array(candidates.length);
-      let acc = 0;
-      for (let i = 0; i < candidates.length; i++) {
-        acc += Math.pow(candidates[i][2], 1.6);
-        cdf[i] = acc;
-      }
-      const pick = () => {
-        const r = Math.random() * acc;
-        let lo = 0, hi = cdf.length - 1;
-        while (lo < hi) {
-          const mid = (lo + hi) >> 1;
-          if (cdf[mid] < r) lo = mid + 1; else hi = mid;
-        }
-        return candidates[lo];
-      };
-
-      const want = Math.min(candidates.length, 9000);
-      dots = [];
-      for (let i = 0; i < want; i++) {
-        const c = pick();
-        dots.push({
-          hx: c[0], hy: c[1], d: c[2],
-          x: w / 2 + (Math.random() - 0.5) * w * 1.6,
-          y: h / 2 + (Math.random() - 0.5) * h * 1.6,
-          vx: 0, vy: 0,
-          k: 0.012 + Math.random() * 0.02,
-        });
       }
       el.classList.add('is-live');
+      if (img) img.setAttribute('aria-hidden', 'true');
       return true;
     }
-
-    let painted = false;
 
     function render() {
       painted = true;
@@ -672,19 +514,18 @@
       ctx.clearRect(0, 0, w, h);
 
       let moving = false;
+      ctx.fillStyle = 'rgba(35, 33, 29, 0.42)';
       for (let i = 0; i < dots.length; i++) {
         const p = dots[i];
-        // пружина к своему месту
         p.vx += (p.hx - p.x) * p.k;
         p.vy += (p.hy - p.y) * p.k;
 
-        // курсор расталкивает точки
         if (mouse.on) {
           const dx = p.x - mouse.x;
           const dy = p.y - mouse.y;
           const dist2 = dx * dx + dy * dy;
-          if (dist2 < 7000) {
-            const f = (1 - dist2 / 7000) * 2.6;
+          if (dist2 < 9000) {
+            const f = (1 - dist2 / 9000) * 2.8;
             const dist = Math.sqrt(dist2) || 1;
             p.vx += (dx / dist) * f;
             p.vy += (dy / dist) * f;
@@ -697,10 +538,14 @@
         p.y += p.vy;
         if (Math.abs(p.vx) + Math.abs(p.vy) > 0.02) moving = true;
 
-        ctx.fillStyle = `rgba(35, 33, 29, ${(0.2 + p.d * 0.55).toFixed(3)})`;
-        ctx.fillRect(p.x, p.y, 1.3, 1.3);
+        if (p.edge) {
+          ctx.fillStyle = 'rgba(35, 33, 29, 0.85)';
+          ctx.fillRect(p.x, p.y, 1.5, 1.5);
+        } else {
+          ctx.fillStyle = 'rgba(35, 33, 29, 0.38)';
+          ctx.fillRect(p.x, p.y, 1.2, 1.2);
+        }
       }
-
       return moving;
     }
 
@@ -722,7 +567,7 @@
     }
 
     function init() {
-      if (started || !sample()) return;
+      if (started || !layout(true)) return;
       started = true;
       el.insertBefore(canvas, el.firstChild);
 
@@ -749,23 +594,23 @@
       let t = null;
       window.addEventListener('resize', () => {
         clearTimeout(t);
-        t = setTimeout(() => { if (sample()) start(); }, 250);
+        t = setTimeout(() => {
+          // после смены размеров холст очищается — рисуем кадр сразу,
+          // иначе фигура исчезнет до следующего движения
+          if (layout(false)) { if (painted) render(); start(); }
+        }, 250);
       });
     }
 
-    // ждём и загрузку картинки, и реальные размеры блока
     let tries = 0;
-    function boot() {
+    (function boot() {
       if (started) return;
-      if (!(img.complete && img.naturalWidth) || el.getBoundingClientRect().width < 10) {
+      if (el.getBoundingClientRect().width < 10) {
         if (tries++ < 40) setTimeout(boot, 250);
         return;
       }
       init();
-    }
-    if (img.complete && img.naturalWidth) boot();
-    else img.addEventListener('load', boot, { once: true });
-    setTimeout(boot, 600);
+    })();
   }
 
   if (!reduceMotion) document.querySelectorAll('[data-figure]').forEach(buildFigure);
