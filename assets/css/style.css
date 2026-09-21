@@ -596,50 +596,34 @@ a { color: inherit; text-decoration: none; }
 .lightbox__close:hover { background: var(--accent-deep); }
 
 /* ==========================================================================
-   Фигуры из частиц: маленькие интерактивные иллюстрации на полях
+   Фигуры: силуэты с античных ваз на полях разделов
    ========================================================================== */
 
 .figure {
-  position: relative;
-  height: clamp(15rem, 36vw, 23rem);
+  height: clamp(14rem, 34vw, 22rem);
   width: auto;
   aspect-ratio: var(--fig-ar, 3 / 4);
   margin: 2.5rem 0 0;
 }
-.figure img,
-.figure canvas {
+.figure img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  opacity: 0.88;
 }
-.figure img {
-  mix-blend-mode: multiply;
-  opacity: 0.9;
-}
-/* когда частицы ожили, исходная картинка не нужна */
-.figure.is-live img { display: none; }
-.figure canvas { position: absolute; inset: 0; }
-
-.figure__hint {
-  position: absolute;
-  left: 0;
-  bottom: -1.3rem;
-  font-size: 0.62rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  opacity: 0;
-  transition: opacity 0.6s var(--ease-soft);
-}
-.figure.is-live:hover .figure__hint { opacity: 0.8; }
-@media (hover: none) { .figure__hint { display: none; } }
 
 .services__grid .figure { margin-top: 2rem; }
 .contact__intro .figure { margin-top: 2.5rem; }
 
 @media (min-width: 900px) {
-  .about__grid .figure { grid-column: 1; grid-row: 1; margin: 0.25rem 0 0; justify-self: start; }
+  .about__grid .figure {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0.25rem 1.5rem 0 0;
+    height: clamp(13rem, 24vw, 19rem);
+    justify-self: start;
+  }
 }
 
 /* ==========================================================================
